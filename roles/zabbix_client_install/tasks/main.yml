@@ -1,0 +1,43 @@
+  - name: Stop zabbix_agentd
+    #shell: /usr/bin/pkill zabbix_agentd
+    shell: ps -ef|grep -i zabbix_agentd|grep -v grep|awk '{print $2}'|xargs kill -9 >>/dev/null 2>&1
+    ignore_errors: yes
+
+  - name: Disable zabbix_agentd 6
+    shell: chkconfig zabbix-agent off
+    ignore_errors: yes
+    when: ansible_os_family == "RedHat" and ansible_lsb.major_release|int == 6
+
+  - name: Disable zabbix_agentd 7
+    shell: systemctl disable zabbix-agent
+    ignore_errors: yes
+    when: ansible_os_family == "RedHat" and ansible_lsb.major_release|int == 7
+
+  - name: Install Base Require Software In Redhat Client
+    yum: name={{ item }} state=latest
+    with_items:
+      - telnet
+      - dmidecode
+      - tar
+
+  - name: Create Zabbix User In Redhat Client
+    user: name={{ zabbix_user }} state=present createhome=no shell=/sbin/nologin
+
+  - name: mkdir for zabbix_agentd
+    file: path={{ zabbix_dir }}/zabbix_agents/ state=directory mode=0644
+
+  - name: Uncompression Zabbix Client Software To Redhat Client
+    unarchive: src={{ zabbix_version }} dest={{ zabbix_dir }}/zabbix_agents/
+
+  - name: Copy zabbix_agentd Config
+    template: src=zabbix_agentd.conf dest=/usr/local/etc/zabbix_agentd.conf owner={{ zabbix_user }} group={{ zabbix_user }} mode=0644
+
+  - name: Modify Zabbix Dir Permission In Redhat Client
+    file: path={{ zabbix_dir }}/zabbix_agents owner={{ zabbix_user }} group={{ zabbix_user }} mode=0755
+
+  - name: Start Zabbix Service In Redhat Client
+    shell: /usr/local/zabbix_agents/sbin/zabbix_agentd
+
+  - name: add to rc.local
+    shell: echo '/usr/local/zabbix_agents/sbin/zabbix_agentd' >> /etc/rc.local && chmod +x /etc/rc.d/rc.local 
+
