@@ -1,4 +1,4 @@
-zabbix_dir: /usr/local
+#zabbix_dir: /usr/local
 zabbix_version: zabbix_agents_3.0.4.linux2_6.amd64.tar.gz
 zabbix_user: zabbix
 zabbix_port: 10050
