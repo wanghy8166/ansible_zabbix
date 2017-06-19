@@ -13,13 +13,13 @@
     ignore_errors: yes
     when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int == 7
 
-  - name: Install Base Require Software In Redhat Client
-    yum: name={{ item }} state=latest
-    with_items:
-      - telnet
-      - dmidecode
-      - tar
-      - tree
+#  - name: Install Base Require Software In Redhat Client
+#    yum: name={{ item }} state=latest
+#    with_items:
+#      - telnet
+#      - dmidecode
+#      - tar
+#      - tree
 
   - name: Create Zabbix User In Redhat Client
     user: name={{ zabbix_user }} state=present createhome=no shell=/sbin/nologin
